@@ -58,7 +58,7 @@ def cal_yan(link) :
 
     n=1000
     init_th = 0
-    theta = np.linspace(init_th,np.pi*2+init_th,n)
+    theta = np.linspace(init_th,np.pi*2+init_th,n+1)
     c = np.zeros((n,9,2))
 
     for i in range(n) :
