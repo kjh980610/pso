@@ -27,7 +27,7 @@ class pso:
 
         w = 1
         a = 0.8
-        c = 2
+        c = 1.5
         f = 0
         print('------시작------')
         for i in range(self.max_iter):
@@ -37,12 +37,12 @@ class pso:
 
             for d in range(self.p_num):
                 e_cnt=0
-                while e_cnt < 10:
+                while e_cnt < 15:
                     try:
                         f = self.cal_obj_func(parti[d])
                     except Exception as e:
                         e_cnt = e_cnt+1
-                        # print(f'{e} {e_cnt}')
+                        print(e)
                         parti[d] = parti[d] - vel[d]
                         for k in range(10):
                             vel[d,k] = w*pre_vel[d,k] + c*random.random()*(self.pbest[d,k]-parti[d,k]) + c*random.random()*(self.gbest[k]-parti[d,k])
@@ -50,7 +50,7 @@ class pso:
                     else:
                         pre_vel[d]=vel[d]+0
                         break
-                if e_cnt == 10:
+                if e_cnt > 10:
                         print(f'{i+1}번째 시행 {d+1}번 입자 error {e_cnt}')
                 if f > self.pbest[d,-1] :
                     self.pbest[d,:10] = parti[d]
@@ -71,11 +71,10 @@ class pso:
 
     def cal_obj_func(self,l) :
         f = cal_yan.cal_yan(l)
-        f[1] = abs(0.5-f[1])
-        w = np.array([0.1,-20,-10,-1])
+        w = np.array([1,10,-10,-1])
         obj_func = 0
 
-        for i in range(3):
+        for i in range(4):
             obj_func = obj_func +f[i] * w[i]
 
         return obj_func
