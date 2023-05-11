@@ -1,6 +1,9 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import random
+
+init_th = np.pi*random.random()
 
 def get_length(c, c1, c2) :
     len = math.sqrt((c[c1,0] - c[c2,0])**2 + (c[c1,1] - c[c2,1])**2)
@@ -57,7 +60,6 @@ def cal_yan(link) :
     check_link(l)
 
     n=1000
-    init_th = 0
     theta = np.linspace(init_th,np.pi*2+init_th,n+1)
     c = np.zeros((n,9,2))
 
@@ -69,7 +71,9 @@ def cal_yan(link) :
     ep = c[:,8,:]
     gac = 0
     gl = 0
-    sq_mean = 0
+    max_vel = 0
+    min_vel = 100
+    max_gl_y = -100
     for t in range(n):
         n_t = t+1
         if t == n-1 :
@@ -81,20 +85,23 @@ def cal_yan(link) :
         ga=np.rad2deg(math.atan2(dy,dx))
 
         if abs(ga) <= 5 :
-            _check_und(t,n_t,ep)
+            # _check_und(t,n_t,ep)
             vel = math.sqrt(dx**2+dy**2)
-            sq_mean = sq_mean + vel**2
+
+            if vel > max_vel:
+                max_vel = vel
+            elif vel < min_vel:
+                min_vel = vel
+            if ep[t,1] > max_gl_y:
+                max_gl_y = ep[t,1]
             gl=gl+vel
             gac=gac+1
-        
-    mean = gl/gac
-    sq_mean = sq_mean/gac
-    dev = math.sqrt(sq_mean-mean**2)
-    y_dev = np.max(ep[:,1]) - np.min(ep[:,1])
 
+    dev = max_vel - min_vel
+    dev = dev ** 2
+    y_dev = max_gl_y - min(ep[:,1])
     gac = gac/n
-
-    ob = [gl, gac, dev,y_dev]
+    ob = [gl, gac, dev, y_dev]
 
     return ob
 
@@ -139,7 +146,8 @@ def _check_und(t,n_t,ep): #up&down
     upidx = np.where(ep[:,0]>ep[t,0])
     undidx = np.where(ep[upidx,0]<ep[n_t,0])[1]
     if (ep[undidx,1] < ep[t,1]).any():
-        raise Exception('꼬임')
+        print('왜 꼬임')
+        # raise Exception('꼬임')
 
 def print_link(link):
     l =np.array([38, 8, 15, 50, 41.5, 61.9, 39.3, 55.8, 40.1, 39.4, 36.7, 65.7, 49])
@@ -148,7 +156,6 @@ def print_link(link):
     check_link(l)
 
     n=1000
-    init_th = np.pi/2
     theta = np.linspace(init_th,np.pi*2+init_th,n)
     c = np.zeros((n,9,2))
 
@@ -160,18 +167,18 @@ def print_link(link):
     ep = c[:,8,:]
     plt.plot(ep[:,0],ep[:,1])
     for t in range(n):
+        
         n_t = t+1
         if t == n-1 :
             n_t = 0
-
+            
         dx = ep[n_t,0]-ep[t,0]
         dy = ep[n_t,1]-ep[t,1]
 
         ga=np.rad2deg(math.atan2(dy,dx))
 
-        if abs(ga) <= 5 :
+        if abs(ga) <= 11.3 :
             plt.plot(ep[[t,n_t],0],ep[[t,n_t],1],'r')
-
 
     frame = c[0,:,:]
     plt.plot(frame[2:,0],frame[2:,1],'k')
